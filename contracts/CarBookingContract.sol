@@ -8,6 +8,7 @@ contract CarBookingContract {
 
     struct Booking {
         uint256 id;
+        string name;
         address user;
         address driver;
         uint256 fare;
@@ -29,6 +30,7 @@ contract CarBookingContract {
 
     event BookingCreated(
         uint256 id,
+        string name,
         address indexed user,
         uint256 fare,
         string pickup,
@@ -50,6 +52,7 @@ contract CarBookingContract {
     }
 
     function createBooking(
+        string memory _name,
         uint256 _fare,
         string memory _pickup,
         string memory _dropoff,
@@ -60,6 +63,7 @@ contract CarBookingContract {
         bookings.push(
             Booking(
                 bookingCount,
+                _name,
                 msg.sender,
                 address(0),
                 _fare,
@@ -73,6 +77,7 @@ contract CarBookingContract {
         );
         emit BookingCreated(
             bookingCount,
+            _name,
             msg.sender,
             _fare,
             _pickup,
