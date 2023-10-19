@@ -6,8 +6,12 @@ const { API_URL, PRIVATE_KEY } = process.env;
 module.exports = {
   solidity: "0.8.0",
   defaultNetwork: "sepolia",
+  gas: 2100000,
+  gasPrice: 8000000000,
   networks: {
-    hardhat: {},
+    hardhat: {
+      allowUnlimitedContractSize: true,
+    },
     sepolia: {
       url: API_URL,
       accounts: [`0x${PRIVATE_KEY}`],
