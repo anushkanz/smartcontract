@@ -18,6 +18,7 @@ contract CarBookingContract {
         uint256 people;
         bool isCompleted;
         bool isPaid;
+        bool isPickup;
     }
 
     struct Driver {
@@ -27,6 +28,7 @@ contract CarBookingContract {
 
     Booking[] public bookings;
     mapping(address => Driver) public drivers;
+    address[] public driversList;
 
     event BookingCreated(
         uint256 id,
@@ -41,6 +43,7 @@ contract CarBookingContract {
     event BookingAccepted(uint256 id, address indexed driver);
     event BookingCompleted(uint256 id);
     event BookingPaid(uint256 id, address indexed driver);
+    event BookingPickup(uint256 id, address indexed driver);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only the owner can call this function");
@@ -71,6 +74,7 @@ contract CarBookingContract {
                 _dropoff,
                 _date,
                 _people,
+                false,
                 false,
                 false
             )
@@ -106,9 +110,26 @@ contract CarBookingContract {
             bookings[_id].driver == msg.sender,
             "Only the assigned driver can complete the booking"
         );
+        require(
+            bookings[_id].isPickup == true,
+            "Before complete, the driver needs to mark pickup as completed"
+        );
         require(!bookings[_id].isCompleted, "Booking is already completed");
         bookings[_id].isCompleted = true;
         emit BookingCompleted(_id);
+    }
+
+    function markPickupCompleted(uint256 _id) external {
+        require(
+            bookings[_id].driver == msg.sender,
+            "Only the assigned driver can mark pickup as completed"
+        );
+        require(
+            !bookings[_id].isPickup,
+            "Pickup is already marked as completed"
+        );
+        bookings[_id].isPickup = true;
+        emit BookingPickup(_id, msg.sender);
     }
 
     function payDriver(uint256 _id) external {
@@ -136,6 +157,7 @@ contract CarBookingContract {
         );
         driverCount++;
         drivers[msg.sender] = Driver(msg.sender, true);
+        driversList.push(msg.sender); // Add the driver's address to the list
     }
 
     function setDriverAvailability(bool _isAvailable) external {
@@ -148,6 +170,10 @@ contract CarBookingContract {
 
     function getBookings() public view returns (Booking[] memory) {
         return bookings;
+    }
+
+    function getRegisteredDriversList() public view returns (address[] memory) {
+        return driversList;
     }
 
     receive() external payable {}
